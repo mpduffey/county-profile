@@ -1,10 +1,14 @@
-import {Component} from '@angular/core';
-import {Grid, Column} from 'modules/grid/grid';
+import {Component}			from '@angular/core';
+import {Column} 				from 'modules/grid/grid';
+import {ModalService} 	from 'modules/modal/modal-service';
 
 @Component({
 	selector:			'county-profile',
 	template:			`
 		<h1>{{county.name}}</h1>
+		<h3>County Leadership</h3>
+		<button class="btn btn-primary" (click)="addNewLeader()">Add New County Party Leader</button>
+		<grid [rows]="countyLeaders" [columns]="countyLeaderCols"></grid>
 		<p>Total Population: </p>
 		<p>Total Voting Age Population: (% of Statewide VAP)</p>
 		<p>Total Registered Voters: (% of VAP) (% of Statewide Registered Voters)</p>
@@ -21,8 +25,7 @@ import {Grid, Column} from 'modules/grid/grid';
 		<p>County GOP Leadership: </p>
 		<p>Trump County Leadership: </p>
 		<p>Congressional District Leadership: </p>
-	`,
-	directives:		[Grid]
+	`
 })
 
 export class CountyProfile {
@@ -33,6 +36,45 @@ export class CountyProfile {
 		VoteGoal:		177615,
 		May2016RJ:	148032
 	};
+	addCLauto = {
+		source: ["mike", "morgan", "pete", "mark","jason","jimmy","ben"];
+	}
+	addCLFields = [
+    {name: "personId", type: "STRING", defaultValue: "", custom: {label: "County Leader", labelAbove: false, controlType: "autocomplete", autocomplete: this.addCLauto, css: {input: {width: "200px"}, group: {display: "inline-block", "margin-right": "1px", "margin-bottom": "5px"}}}},
+    {name: "role", type: "STRING", defaultValue: "", custom: {label: "Role", labelAbove: false, css: {input: {width: "195px"}, group: {display: "inline-block", "margin-right": "1px", "margin-bottom": "5px"}}}}
+	];
+	addCLForm = {
+    submit:     	function(x){console.log(x)},
+		submitLabel:	"Save",
+    controls:   	[
+      {
+        type: "fieldset",
+        name: "Event Group",
+        fields: [
+          {classField: this.addCLFields[0]},
+          {classField: this.addCLFields[1]}
+        ]
+      },
+		]
+	};
+	addCLObject = {
+		fieldObject:		this.addCLFields,
+		formObject:			this.addCLForm
+	};
 
-	constructor() {}
+	constructor(private modal:ModalService) {
+		this.countyLeaderCols = [
+			new Column('fullname','County Leader'),
+			new Column('role','Role'),
+			new Column('phone','Phone'),
+			new Column('email','E-mail')
+		];
+		this.countyLeaders = []
+	}
+	addNewLeader = () => {
+		console.log("add New Leader");
+		this.modal.formObject = this.addCLObject;
+		this.modal.title = "Add a new County Leader";
+		this.modal.showModal = true;
+	}
 }
